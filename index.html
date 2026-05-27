@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduTrack — Student Performance System</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+<div id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#000" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">EduTrack</div>
+      <div class="logo-sub">v3.1 · Student Analytics</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">Main</div>
+    <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-btn" onclick="showView('predict')" id="nav-predict">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Assessment
+    </button>
+    <button class="nav-btn" onclick="showView('students')" id="nav-students">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Students
+    </button>
+    <button class="nav-btn" onclick="showView('analytics')" id="nav-analytics">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Analytics
+    </button>
+    <button class="nav-btn" onclick="showView('interventions')" id="nav-interventions">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Interventions
+      <span class="nav-badge" id="interv-badge">3</span>
+    </button>
+    <div class="nav-section" style="margin-top:12px">Tools</div>
+    <button class="nav-btn" onclick="showView('compare')" id="nav-compare">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Compare Students
+    </button>
+    <button class="nav-btn" onclick="showView('reports')" id="nav-reports">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Reports
+    </button>
+    <button class="nav-btn" onclick="showView('settings')" id="nav-settings">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Settings
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--text)">Dean/HOD</div>
+        <div style="font-size:10px;color:var(--muted)">Administrator</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="main">
+  <div id="header">
+    <div class="header-left">
+      <h1 id="page-title">Overview Dashboard</h1>
+      <p id="page-sub">System-wide academic performance at a glance</p>
+    </div>
+    <div class="header-right">
+      <span class="hdr-pill" id="date-pill"></span>
+      <span id="live-clock"></span>
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">☀️</span> <span id="theme-lbl">Light</span>
+      </button>
+      <div class="hdr-icon-btn" onclick="toggleNotif()" title="Notifications">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+        <span class="notif-dot" id="notif-count">3</span>
+      </div>
+      <div class="hdr-icon-btn" onclick="window.print()" title="Print">
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <div id="view-dashboard" class="view active">
+      <div class="welcome-banner" id="welcome-banner">
+        <div>
+          <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px">👋 Welcome back, Dean/HOD</div>
+          <div style="font-size:12px;color:var(--muted)">Here's your academic overview for <strong id="welcome-date" style="color:var(--accent)"></strong>. You have <span style="color:var(--danger);font-weight:600" id="welcome-risk-count">5</span> students requiring attention.</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('welcome-banner').style.display='none'" style="flex-shrink:0">✕ Dismiss</button>
+      </div>
+      <div class="g4" style="margin-bottom:18px" id="kpi-row"></div>
+      <div class="g21" style="margin-bottom:18px">
+        <div class="card">
+          <div class="sec-head"><div><div class="sec-title">Performance Trend</div><div class="sec-sub">Class average vs. 75% passing threshold</div></div>
+            <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+          </div>
+          <div class="chart-wrap" style="height:195px"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="sec-head"><div class="sec-title">Risk Distribution</div></div>
+          <div class="chart-wrap" style="height:150px"><canvas id="riskChart"></canvas></div>
+          <div id="risk-legend" style="margin-top:12px;display:flex;flex-direction:column;gap:7px"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="sec-head">
+          <div><div class="sec-title">⚠ Immediate Attention Required</div><div class="sec-sub" id="risk-count-sub"></div></div>
+          <button class="btn btn-outline btn-sm" onclick="showView('interventions')">View All →</button>
+        </div>
+        <div id="at-risk-list"></div>
+      </div>
+      <div class="g3" style="margin-bottom:18px">
+        <div class="card"><div class="sec-head"><div class="sec-title">Subject Performance</div><div class="sec-sub">School vs. district avg</div></div><div class="chart-wrap" style="height:170px"><canvas id="subChart"></canvas></div></div>
+        <div class="card"><div class="sec-head"><div class="sec-title">Retention Rate</div><div class="sec-sub">Year-over-year</div></div><div class="chart-wrap" style="height:170px"><canvas id="retChart"></canvas></div></div>
+        <div class="card"><div class="sec-head"><div class="sec-title">Attendance Bands</div><div class="sec-sub">Student distribution</div></div><div class="chart-wrap" style="height:170px"><canvas id="attChart"></canvas></div></div>
+      </div>
+      <div class="g2" style="margin-bottom:18px">
+        <div class="card">
+          <div class="sec-head"><div class="sec-title">🏆 Top Performers</div><div class="sec-sub">Highest scoring students this semester</div></div>
+          <div id="top-performers-list"></div>
+        </div>
+        <div class="card">
+          <div class="sec-head"><div class="sec-title">📊 Class Health Score</div><div class="sec-sub">Overall academic wellness index</div></div>
+          <div style="display:flex;align-items:center;gap:20px;padding-top:8px">
+            <div class="health-ring">
+              <svg width="90" height="90" viewBox="0 0 90 90">
+                <circle cx="45" cy="45" r="38" fill="none" stroke="var(--border)" stroke-width="8"/>
+                <circle id="health-ring-fill" cx="45" cy="45" r="38" fill="none" stroke="var(--accent)" stroke-width="8"
+                  stroke-dasharray="239" stroke-dashoffset="239" stroke-linecap="round"
+                  style="transition:stroke-dashoffset 1.2s ease"/>
+              </svg>
+              <div class="health-ring-label">
+                <div id="health-score-val" style="font-size:20px;font-weight:800;font-family:var(--mono);color:var(--accent)">--</div>
+                <div style="font-size:9px;color:var(--muted)">/100</div>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:10px">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--muted)">Academic Score</span><span style="font-size:12px;font-family:var(--mono);color:var(--blue)" id="h-academic">--</span></div><div class="progress"><div class="progress-fill" id="h-academic-bar" style="background:var(--blue)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--muted)">Attendance Rate</span><span style="font-size:12px;font-family:var(--mono);color:var(--success)" id="h-att">--</span></div><div class="progress"><div class="progress-fill" id="h-att-bar" style="background:var(--success)"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:var(--muted)">Low-Risk Students</span><span style="font-size:12px;font-family:var(--mono);color:var(--accent)" id="h-safe">--</span></div><div class="progress"><div class="progress-fill" id="h-safe-bar" style="background:var(--accent)"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-predict" class="view">
+      <div style="display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:flex-start">
+        <div style="display:flex;flex-direction:column;gap:15px">
+          <div class="card">
+            <div class="sec-title" style="margin-bottom:14px">Student Demographics</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+              <div class="field"><label>Student Name</label><input type="text" id="p-name" placeholder="Full name"></div>
+              <div class="field"><label>Age</label><input type="number" id="p-age" value="16" min="10" max="20"></div>
+              <div class="field"><label>Grade Level</label><select id="p-grade"><option value="9">Grade 9</option><option value="10" selected>Grade 10</option><option value="11">Grade 11</option><option value="12">Grade 12</option></select></div>
+              <div class="field"><label>Gender</label><select id="p-gender"><option value="M">Male</option><option value="F">Female</option><option value="O">Other</option></select></div>
+              <div class="field"><label>Socioeconomic Status</label><select id="p-ses"><option value="Low">Low</option><option value="Middle" selected>Middle</option><option value="High">High</option></select></div>
+              <div class="field"><label>Parent Involvement</label><select id="p-parent"><option value="None">None</option><option value="Low">Low</option><option value="Moderate" selected>Moderate</option><option value="High">High</option></select></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="sec-title" style="margin-bottom:14px">Academic Performance</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="field"><label>Current GPA: <span id="v-gpa" style="color:var(--accent)">2.5</span></label><input type="range" id="p-gpa" min="0" max="4" step="0.1" value="2.5" oninput="document.getElementById('v-gpa').textContent=parseFloat(this.value).toFixed(1)"></div>
+              <div class="field"><label>Previous Score: <span id="v-prev" style="color:var(--accent)">65</span>%</label><input type="range" id="p-prev" min="0" max="100" value="65" oninput="document.getElementById('v-prev').textContent=this.value"></div>
+              <div class="field"><label>DS: <span id="v-math" style="color:var(--blue)">65</span>%</label><input type="range" id="p-math" min="0" max="100" value="65" oninput="document.getElementById('v-math').textContent=this.value"></div>
+              <div class="field"><label>OOPS: <span id="v-sci" style="color:var(--purple)">65</span>%</label><input type="range" id="p-sci" min="0" max="100" value="65" oninput="document.getElementById('v-sci').textContent=this.value"></div>
+              <div class="field"><label>PYTHON: <span id="v-eng" style="color:var(--amber)">65</span>%</label><input type="range" id="p-eng" min="0" max="100" value="65" oninput="document.getElementById('v-eng').textContent=this.value"></div>
+              <div class="field"><label>SQL: <span id="v-hist" style="color:var(--success)">65</span>%</label><input type="range" id="p-hist" min="0" max="100" value="65" oninput="document.getElementById('v-hist').textContent=this.value"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="sec-title" style="margin-bottom:14px">Behavioral & Lifestyle</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+              <div class="field"><label>Attendance: <span id="v-att" style="color:var(--accent)">80</span>%</label><input type="range" id="p-att" min="0" max="100" value="80" oninput="document.getElementById('v-att').textContent=this.value"></div>
+              <div class="field"><label>Study Hours/Day: <span id="v-study" style="color:var(--accent)">2.0</span>h</label><input type="range" id="p-study" min="0" max="10" step="0.5" value="2" oninput="document.getElementById('v-study').textContent=parseFloat(this.value).toFixed(1)"></div>
+              <div class="field"><label>Sleep Hours/Night: <span id="v-sleep" style="color:var(--accent)">7.0</span>h</label><input type="range" id="p-sleep" min="4" max="12" step="0.5" value="7" oninput="document.getElementById('v-sleep').textContent=parseFloat(this.value).toFixed(1)"></div>
+              <div class="field"><label>Classroom Behavior</label><select id="p-beh"><option value="Excellent">Excellent</option><option value="Good">Good</option><option value="Fair" selected>Fair</option><option value="Poor">Poor</option></select></div>
+              <div class="field"><label>Tutoring Support</label><select id="p-tut"><option value="true">Yes</option><option value="false" selected>No</option></select></div>
+              <div class="field"><label>Extracurricular</label><select id="p-extra"><option value="true">Yes</option><option value="false" selected>No</option></select></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-primary" id="predict-btn" onclick="runPrediction()" style="flex:1;justify-content:center;font-size:14px;padding:12px">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              Analyze Student
+            </button>
+            <button class="btn btn-ghost" onclick="resetPredictForm()">Reset</button>
+          </div>
+          <div id="pred-error" style="display:none;color:var(--danger);font-size:13px;padding:12px;background:var(--danger-dim);border-radius:10px;border:1px solid rgba(244,63,94,.3)"></div>
+        </div>
+        <div id="results-panel">
+          <div class="card empty">
+            <div class="empty-icon"><svg width="44" height="44" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+            <div class="empty-title">Student Assessment Engine</div>
+            <div class="empty-sub">Fill in the student profile and click Analyze Student to receive a data-driven academic assessment with personalized intervention strategies.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-students" class="view">
+      <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+        <div style="position:relative;flex:1;min-width:200px">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--muted)" stroke-width="2" style="position:absolute;left:11px;top:50%;transform:translateY(-50%)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="stu-search" placeholder="Search by name, grade, subject..." oninput="filterStudents()" style="padding-left:33px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding-top:9px;padding-bottom:9px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none">
+        </div>
+        <div id="risk-filters" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+        <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Grade</th><th>GPA</th><th>Attendance</th><th>Avg Score</th><th>Subjects</th><th>Risk</th><th>SES</th><th>Actions</th></tr></thead>
+          <tbody id="stu-tbody"></tbody>
+        </table>
+        <div style="padding:10px 14px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;border-top:1px solid var(--border);background:var(--surface)">
+          <span id="stu-count-lbl"></span>
+          <span>Click any row to view full profile</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-analytics" class="view">
+      <div class="g2" style="margin-bottom:18px">
+        <div class="card"><div class="sec-head"><div><div class="sec-title">Attendance vs. Performance</div><div class="sec-sub">Correlation r = 0.89 — strong positive</div></div></div><div class="chart-wrap" style="height:220px"><canvas id="scatChart"></canvas></div></div>
+        <div class="card"><div class="sec-head"><div><div class="sec-title">Performance Factor Radar</div><div class="sec-sub">Cohort vs. top 10th percentile</div></div></div><div class="chart-wrap" style="height:220px"><canvas id="radChart"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="sec-head"><div><div class="sec-title">Grade Distribution</div><div class="sec-sub">Students per score range</div></div></div>
+        <div class="chart-wrap" style="height:175px"><canvas id="distChart"></canvas></div>
+      </div>
+      <div class="g21" style="margin-bottom:18px">
+        <div class="card"><div class="sec-head"><div class="sec-title">Multi-Subject Monthly Trend</div></div><div class="chart-wrap" style="height:190px"><canvas id="multiChart"></canvas></div></div>
+        <div class="card">
+          <div class="sec-head"><div class="sec-title">SES Impact</div></div>
+          <div style="display:flex;flex-direction:column;gap:16px;padding-top:4px">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;color:var(--muted)">High SES (5 students)</span><span class="mono" style="font-size:14px;font-weight:700;color:var(--success)">90%</span></div><div class="progress"><div class="progress-fill" style="width:90%;background:var(--success)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;color:var(--muted)">Middle SES (9 students)</span><span class="mono" style="font-size:14px;font-weight:700;color:var(--blue)">75%</span></div><div class="progress"><div class="progress-fill" style="width:75%;background:var(--blue)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;color:var(--muted)">Low SES (6 students)</span><span class="mono" style="font-size:14px;font-weight:700;color:var(--danger)">55%</span></div><div class="progress"><div class="progress-fill" style="width:55%;background:var(--danger)"></div></div></div>
+          </div>
+          <div style="margin-top:18px;padding:11px;background:var(--surface);border-radius:10px;border-left:3px solid var(--amber)">
+            <div style="font-size:11px;color:var(--amber);font-weight:700;margin-bottom:4px">KEY INSIGHT</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6">High SES outperforms Low SES by 35 points. Equity-focused interventions are critical to closing this gap.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-interventions" class="view">
+      <div class="g3" style="margin-bottom:18px">
+        <div class="kpi">
+          <div class="kpi-icon" style="background:var(--accent-dim);margin-bottom:10px"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div class="kpi-val">6</div><div class="kpi-lbl">Students in Intervention</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon" style="background:var(--amber-dim);margin-bottom:10px"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--amber)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <div class="kpi-val">4</div><div class="kpi-lbl">Active Programs</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-icon" style="background:var(--success-dim);margin-bottom:10px"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="var(--success)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+          <div class="kpi-val" style="color:var(--success)">+12%</div><div class="kpi-lbl">Avg Score Improvement</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:18px">
+        <div class="sec-head"><div><div class="sec-title">Priority Intervention Queue</div><div class="sec-sub">Ranked by risk severity — educator action required</div></div></div>
+        <div id="interv-queue"></div>
+      </div>
+      <div class="sec-title" style="margin-bottom:6px">Intervention Strategy Library</div>
+      <div class="sec-sub" style="margin-bottom:14px">Evidence-based programs for educator deployment</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px" id="strat-grid"></div>
+    </div>
+
+    <div id="view-compare" class="view">
+      <div class="card" style="margin-bottom:18px">
+        <div class="sec-title" style="margin-bottom:14px">Select Two Students to Compare</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="field"><label>Student A</label><select id="cmp-a" onchange="renderComparison()"><option value="">— Select student —</option></select></div>
+          <div class="field"><label>Student B</label><select id="cmp-b" onchange="renderComparison()"><option value="">— Select student —</option></select></div>
+        </div>
+      </div>
+      <div id="cmp-result">
+        <div class="empty card"><div class="empty-icon"><svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div><div class="empty-title">Select two students above to compare their academic profiles side-by-side.</div></div>
+      </div>
+    </div>
+
+    <div id="view-reports" class="view">
+      <div class="g2" style="margin-bottom:18px">
+        <div class="card">
+          <div class="sec-title" style="margin-bottom:14px">Generate Reports</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-outline" onclick="generateReport('class')" style="justify-content:flex-start">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Full Class Performance Report
+            </button>
+            <button class="btn btn-outline" onclick="generateReport('risk')" style="justify-content:flex-start">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+              At-Risk Student Report
+            </button>
+            <button class="btn btn-outline" onclick="generateReport('attendance')" style="justify-content:flex-start">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Attendance Tracker Report
+            </button>
+            <button class="btn btn-outline" onclick="generateReport('intervention')" style="justify-content:flex-start">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Intervention Effectiveness Report
+            </button>
+            <button class="btn btn-ghost" onclick="exportCSV()" style="justify-content:flex-start">⬇ Download Full Dataset (CSV)</button>
+          </div>
+        </div>
+        <div class="card" id="report-preview">
+          <div class="empty"><div class="empty-icon"><svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="empty-title">No report generated</div><div class="empty-sub">Select a report type to preview it here.</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="sec-title" style="margin-bottom:14px">Report History</div>
+        <div id="report-history"></div>
+      </div>
+    </div>
+
+    <div id="view-settings" class="view">
+      <div class="g2">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="sec-title" style="margin-bottom:14px">Application Preferences</div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+                <div><div style="font-size:13px;font-weight:600;color:var(--text)">Dark Mode</div><div style="font-size:11px;color:var(--muted)">Toggle between dark and light theme</div></div>
+                <button onclick="toggleTheme()" class="btn btn-ghost btn-sm" id="settings-theme-btn">Switch to Light</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+                <div><div style="font-size:13px;font-weight:600;color:var(--text)">Passing Threshold</div><div style="font-size:11px;color:var(--muted)">Minimum score considered passing</div></div>
+                <div style="display:flex;align-items:center;gap:8px"><input type="number" id="pass-thresh" value="75" min="50" max="90" style="width:70px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none"><span style="color:var(--muted);font-size:13px">%</span></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+                <div><div style="font-size:13px;font-weight:600;color:var(--text)">School Name</div><div style="font-size:11px;color:var(--muted)">Displayed in reports and exports</div></div>
+                <input type="text" id="school-name" value="Lincoln High School" style="width:180px;background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 9px;color:var(--text);font-size:13px;font-family:var(--sans);outline:none">
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+                <div><div style="font-size:13px;font-weight:600;color:var(--text)">Notifications</div><div style="font-size:11px;color:var(--muted)">Alert on new at-risk flags</div></div>
+                <button class="btn btn-ghost btn-sm" onclick="toast('\u2713 Notifications enabled!','success')">Enable</button>
+              </div>
+              <div style="padding:10px 0;border-top:1px solid var(--border);margin-top:4px">
+                <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px">📋 Data Management</div>
+                <div style="font-size:11px;color:var(--muted);margin-bottom:12px">All student data is processed locally in your browser. No data is sent to external servers.</div>
+                <div style="padding:10px 12px;background:var(--success-dim);border-radius:8px;border:1px solid rgba(16,185,129,.25);font-size:12px;color:var(--success);display:flex;align-items:center;gap:8px">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Private &amp; Secure — Offline capable
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="sec-title" style="margin-bottom:14px">About</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--muted)">Version</span><span style="font-size:12px;font-family:var(--mono);color:var(--text)">3.1.0</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--muted)">Assessment Engine</span><span style="font-size:12px;font-family:var(--mono);color:var(--text)">Rule-Based Analytics</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--muted)">Charts</span><span style="font-size:12px;font-family:var(--mono);color:var(--text)">Chart.js 4.4.1</span></div>
+              <div style="display:flex;justify-content:space-between"><span style="font-size:12px;color:var(--muted)">Build</span><span style="font-size:12px;font-family:var(--mono);color:var(--text)">Standalone HTML</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="sec-title" style="margin-bottom:14px">System Status</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="padding:12px;background:var(--success-dim);border-radius:10px;border:1px solid rgba(16,185,129,.3)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--success)"></div><span style="font-size:13px;font-weight:600;color:var(--success)">Assessment Engine Active</span></div>
+              <div style="font-size:12px;color:var(--muted)">Rule-based analytics — no external API required</div>
+            </div>
+            <div style="padding:12px;background:var(--accent-dim);border-radius:10px;border:1px solid rgba(0,229,190,.3)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></div><span style="font-size:13px;font-weight:600;color:var(--accent)">Data Loaded</span></div>
+              <div style="font-size:12px;color:var(--muted)" id="sys-data-lbl">54 student profiles · 7-month academic records</div>
+            </div>
+            <div style="padding:12px;background:var(--blue-dim);border-radius:10px;border:1px solid rgba(79,142,247,.3)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><div style="width:8px;height:8px;border-radius:50%;background:var(--blue)"></div><span style="font-size:13px;font-weight:600;color:var(--blue)">Charts Ready</span></div>
+              <div style="font-size:12px;color:var(--muted)">10 visualizations across 6 views</div>
+            </div>
+          </div>
+          <div style="margin-top:18px">
+            <button class="btn btn-danger btn-sm" onclick="if(confirm('Reset all data?')){toast('Data reset!','info')}">Reset All Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><button id="scroll-top" onclick="document.getElementById('content').scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+</div></div><div id="notif-panel">
+  <div style="padding:16px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+    <div style="font-size:15px;font-weight:700;color:var(--text)">Notifications</div>
+    <button class="modal-close" onclick="toggleNotif()">✕</button>
+  </div>
+  <div style="overflow-y:auto;flex:1">
+    <div class="notif-item unread">
+      <div class="notif-title">🔴 Critical Alert: Tyler Brooks</div>
+      <div class="notif-msg">Attendance dropped to 59%. Score average 44%. Immediate intervention required.</div>
+      <div class="notif-time">2 hours ago</div>
+    </div>
+    <div class="notif-item unread">
+      <div class="notif-title">🟠 High Risk: Ethan Clarke</div>
+      <div class="notif-msg">Consecutive absences this week. History score fell to 33%. Parent contact recommended.</div>
+      <div class="notif-time">4 hours ago</div>
+    </div>
+    <div class="notif-item unread">
+      <div class="notif-title">🟡 Attention: James O'Brien</div>
+      <div class="notif-msg">Behavior report submitted. GPA declined from 2.6 to 2.3 this semester.</div>
+      <div class="notif-time">Yesterday</div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-title">✅ Success: Mia Kowalski</div>
+      <div class="notif-msg">After tutoring program, average score improved from 65% to 73%. Risk level reduced.</div>
+      <div class="notif-time">2 days ago</div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-title">📊 Monthly Report Ready</div>
+      <div class="notif-msg">March performance report is ready for review. Class average improved by 2.1 points.</div>
+      <div class="notif-time">3 days ago</div>
+    </div>
+  </div>
+  <div style="padding:12px 16px;border-top:1px solid var(--border)">
+    <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center" onclick="toast('All notifications marked read','info');document.getElementById('notif-count').textContent='0'">Mark all read</button>
+  </div>
+</div>
+
+<div id="stu-modal" style="display:none">
+  <div class="modal-overlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <div id="modal-name" style="font-size:18px;font-weight:700;color:var(--text)"></div>
+          <div id="modal-sub" style="font-size:12px;color:var(--muted);margin-top:2px"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
